@@ -1,0 +1,62 @@
+<header class="header">
+  <div class="title">
+    <h3>Folder structure maker</h3>
+  </div>
+</header>
+
+<div class="btn-wrap">
+  <button class="root-btn" (click)="addRootFolder()">add folder to root</button>
+</div>
+
+<div class="structure">
+  <ul class="list-ul main-list">
+    <ng-container
+      *ngTemplateOutlet="recursiveListTmpl; context: { list: list }"
+    ></ng-container>
+  </ul>
+
+  <ng-template #recursiveListTmpl let-list="list">
+    <li
+      *ngFor="let item of list; let i = index"
+      [ngClass]="{ file: item.type === 'file', folder: item.type === 'folder' }">
+
+      <div class="name" *ngIf="!item.isEditable">
+        <span (click)="onClickList(item)">{{ item.name }}</span>
+        <i
+          class="fa fa-plus-circle"
+          (click)="insertNode(item)"
+          *ngIf="item.type === 'folder'"></i>
+        <i class="fa fa-trash" (click)="removeNode(list, item.id)"></i>
+      </div>
+      <span
+        [ngClass]="{
+          'view-icon-file': item.type === 'file',
+          'view-icon-folder': item.type === 'folder'}"></span>
+
+      <ng-container *ngIf="item.isEditable">
+        <div class="name-edit">
+          <input type="text" value="{{ item.name }}" #editInput />
+          <i
+            class="fa fa-check-circle"
+            (click)="updateNode(item, editInput.value)"></i>
+          <i
+            class="fa fa-times-circle"
+            (click)="updateNode(item, item.name)"></i>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="item.type === 'unset'">
+        <button (click)="addFileFolderNode(item, 'file')">file</button>
+        <button (click)="addFileFolderNode(item, 'folder')">folder</button>
+      </ng-container>
+
+      <ul *ngIf="item.children.length > 0" class="list-ul sub-ul">
+        <ng-container
+          *ngTemplateOutlet="
+            recursiveListTmpl;
+            context: { list: item.children }">
+        </ng-container>
+      </ul>
+    </li>
+  </ng-template>
+</div>
